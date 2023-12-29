@@ -1,8 +1,12 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from qr_code.qrcode.utils import QRCodeOptions
-from .forms import SignUpForm
+from .forms import SignUpForm, UserPorfileForm
+from .models import UserProfile
+from datetime import datetime
+
 # Create your views here.
 
 
@@ -54,7 +58,10 @@ def register(request):
 
 
 def user_info(request):
-    return render(request, 'info.html', {})
+    profile = UserProfile.objects.get(username=request.user)
+    return render(request, 'info.html', {
+        'profile': profile,
+    })
 
 
 def adduserdata(request):
@@ -65,5 +72,35 @@ def QRcode(request):
     pass
 
 
+@login_required
 def edit_info(request):
-    return render(request, 'edit.html', {})
+    if request.method == "POST":
+        form = UserPorfileForm(request.POST)
+        if form.is_valid():
+            # D 要重新命名
+            C = UserProfile.objects.all()
+            D = UserProfile.objects.get(username=request.user)
+            if D:
+                profile = form.save(commit=False)
+
+                profile.id = D.id
+                profile.username = request.user
+                profile.last_edited_at = datetime.now()
+                profile.save()
+            else:
+                profile = form.save(commit=False)
+                profile.username = request.user
+                profile.save()
+
+            messages.success(request, "Change Success!")
+            return redirect('home')
+        else:
+            messages.success(
+                request, "There Was An Error Logging In, Please Try Again")
+            return redirect('home')
+    else:
+        form = UserPorfileForm()
+        return render(request, 'edit.html', {
+            'form': form
+        })
+    # pass

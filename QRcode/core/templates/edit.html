@@ -1,4 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Edit Information</h1>
+<div class="col-md-3 offset-md-5">
+    <h1>Edit Profile</h1>
+    </br>
+    <form method="POST" action="{% url "edit_info" %}">
+        {% csrf_token %}
+        {% if form.errors  %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                Your Form Has Errors
+                {% for field  in form  %}
+                    {% if field.errors  %}
+                        {{ field.errors }}
+                    {% endif %}
+                {% endfor %}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        {{ form.as_p }}
+        </br>
+        <button type="submit" class="btn btn-danger">Save</button>
+        <a href="{% url "home" %}" class="btn btn-secondary">back</a>
+    </form>
+</div>
 {% endblock  %}

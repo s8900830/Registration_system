@@ -1,6 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django import forms
+from .models import UserProfile
+from django.forms import RadioSelect
+
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(label="", widget=forms.TextInput(attrs={
@@ -38,3 +41,35 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].widget.attrs['placeholder'] = 'Confirm Password'
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Enter the same password as before, for verification.</small></span>'
+
+
+# class HorizontalRadioSelect(forms.RadioSelect):
+#     template_name = 'horizontal_select.html'
+
+
+class UserPorfileForm(forms.ModelForm):
+    gender_choices = (
+        ('M', '男'),
+        ('F', '女'),
+    )
+    gender = forms.TypedChoiceField(choices=gender_choices, widget=forms.RadioSelect(attrs={}),
+                                    required=True
+                                    )
+
+    city = forms.CharField(label="", max_length="100", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'City',
+    }))
+    address = forms.CharField(label="", max_length="100", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Address',
+    }))
+    phone = forms.CharField(label="", max_length="100", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Phone',
+    }))
+
+    class Meta:
+        model = UserProfile
+        fields = ('gender', 'city', 'address',
+                  'phone',)

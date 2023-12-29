@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content  %}
+<div class="col-md-3 offset-md-5">
 <h1>Register</h1>
 <br/>
 <form method="POST" action="{% url "register" %}">
@@ -19,4 +20,5 @@
     </br>
     <button type="submit" class="btn btn-secondary">Register</button>
 </form>
+</div>
 {% endblock  %}

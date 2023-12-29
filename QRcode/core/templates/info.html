@@ -1,4 +1,37 @@
 {% extends "base.html" %}
+{% load humanize %}
+
 {% block content %}
-<h1>Information</h1>
+<h1>Profile</h1>
+
+<table class="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col">使用者名稱</th>
+        <th scope="col">性別</th>
+        <th scope="col">都市</th>
+        <th scope="col">地址</th>
+        <th scope="col">電話</th>
+        <th scope="col">最後編輯時間</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">{{ profile.username }}</th>
+        <td>{{ profile.gender }}</td>
+        <td>{{ profile.city }}</td>
+        <td>{{ profile.address }}</td>
+        <td>{{ profile.phone }}</td>
+        <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+
+
+{% comment %} {% for detail in profile %}
+    {{ detail.username }}
+    {{ detail.gender }}
+{% endfor %} {% endcomment %}
 {% endblock  %}
