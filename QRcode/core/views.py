@@ -4,8 +4,9 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from qr_code.qrcode.utils import QRCodeOptions
 from .forms import SignUpForm, UserPorfileForm
-from .models import UserProfile
+from .models import UserProfile, QRCodeList
 from datetime import datetime
+from django.http import HttpResponse
 
 # Create your views here.
 
@@ -57,15 +58,20 @@ def register(request):
     return render(request, 'register.html', {'form': form})
 
 
+@login_required
 def user_info(request):
-    profile = UserProfile.objects.get(username=request.user)
+    try:
+        profile = UserProfile.objects.get(username=request.user)
+    except UserProfile.DoesNotExist:
+        form = UserPorfileForm()
+        messages.success(
+            request, "You Don't Have Any Profile! Please Add Your Profile!")
+        return render(request, 'edit.html', {
+            'form': form
+        })
     return render(request, 'info.html', {
         'profile': profile,
     })
-
-
-def adduserdata(request):
-    pass
 
 
 def QRcode(request):
@@ -104,3 +110,17 @@ def edit_info(request):
             'form': form
         })
     # pass
+
+# 驗證使用者
+
+
+def your_view_function(request, url_suffix):
+    try:
+        codeprofile = QRCodeList.objects.get(code=url_suffix)
+        profile = UserProfile.objects.get(username=codeprofile.username)
+    except QRCodeList.DoesNotExist:
+        return redirect('home')
+
+    return render(request, 'verify.html', {
+        'profile': profile,
+    })

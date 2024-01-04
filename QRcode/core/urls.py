@@ -7,5 +7,5 @@ urlpatterns = [
     path('register/', views.register, name="register"),
     path('user_info/', views.user_info, name="user_info"),
     path('edit_info/', views.edit_info, name="edit_info"),
-
+    path('<str:url_suffix>/', views.your_view_function),
 ]
