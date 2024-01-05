@@ -3,14 +3,36 @@
 {% block content  %}
 <div class="col-md-3 offset-md-5">
     {% if user.is_authenticated %}
-        <h1>Hello World!</h1>
-        {% load qr_code %}
-        <img src="{% qr_url_from_text "http://127.0.0.1:8000" %}">
+        <h1>Hello {{ request.user }}!</h1>
+        <strong>This is Your QRcode</strong>
+        <!-- 顯示 QR Code 的區域 -->
+        <div id="qrcode-container" class="d-flex justify-content-center">
+            <!-- 按鈕，按下後生成 QR Code -->
+            <button id="generateBtn">Generate Your QR Code</button>
+        </div>
+        <script>
+        // JavaScript 函數，用於處理按鈕點擊事件
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            // 使用 Fetch API 向後端發送請求
+            fetch('/generate_qr_code/')
+                .then(response => response.json())
+                .then(qr_code_url => {
+                    // 在頁面上顯示 QR Code
+                    var qrcodeContainer = document.getElementById('qrcode-container');
+                    qrcodeContainer.innerHTML = '<img src="data:image/png;base64,'+ qr_code_url.qr_code_base64 +'" alt="QR Code">';
+                    var generateBtn = document.getElementById('generateBtn');
+                    generateBtn.style.display = 'none';
+
+                })
+                .catch(error => console.error('Error:', error));
+        });
+        </script>
+
     {% else %}
         </br>
         <h1>Login</h1>
         </br>
-        <form method="POST" action="{% url 'home' %}">
+        <form method="POST" action="{% url 'home' %}?next={{ request.GET.next }}">
             {% csrf_token %}
             <div class="mb-3">
                 <input type="text" class="form-control" name="username", placeholder="User Name" required>

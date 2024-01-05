@@ -3,7 +3,7 @@
     <div class="container-fluid">
         <a class="navbar-brand text-white" href="{% url "home" %}">
             <img src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-            Navbar
+            Registration System
         </a>      
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -18,6 +18,11 @@
                 <li class="nav-item">
                     <a class="nav-link text-white" href="{% url "edit_info" %}">Edit Profile</a>
                 </li>
+                {% if user.groups.all.0.name == 'Admin'  %}
+                <li class="nav-item">
+                    <a class="nav-link text-white" href="{% url "manage" %}">Manage Users</a>
+                </li>
+                {% endif %}
                 <a class="nav-link text-white" href="{% url "logout" %}">Logout</a>
             {% else %}
                 <a class="nav-link text-white" href="{% url "register" %}">Register</a>

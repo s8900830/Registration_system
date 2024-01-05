@@ -1,12 +1,17 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import Group
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
-from qr_code.qrcode.utils import QRCodeOptions
+from django.http import JsonResponse
 from .forms import SignUpForm, UserPorfileForm
 from .models import UserProfile, QRCodeList
 from datetime import datetime
-from django.http import HttpResponse
+from .change import mainfunction
+from io import BytesIO
+import qrcode
+import base64
+from PIL import Image
 
 # Create your views here.
 
@@ -21,7 +26,11 @@ def home(request):
         if user is not None:
             login(request, user)
             messages.success(request, "You Have Been Logged In!")
-            return redirect('home')
+
+            next_param = request.GET.get('next', 'home')
+            if not next_param or next_param.isspace():
+                next_param = 'home'
+            return redirect(next_param)
         else:
             messages.success(
                 request, "There Was An Error Logging In, Please Try Again")
@@ -42,7 +51,11 @@ def register(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save()
+            default_group, created = Group.objects.get_or_create(
+                name='Members')
+            user.groups.add(default_group.id)
+
             # Authenticated and login
             # 驗證跟登入
             username = form.cleaned_data['username']
@@ -75,7 +88,20 @@ def user_info(request):
 
 
 def QRcode(request):
-    pass
+    try:
+        code = QRCodeList.objects.get(username=request.user)
+    except QRCodeList.DoesNotExist:
+        code = QRCodeList.objects.create(
+            username=request.user, code=mainfunction.code(15))
+        code.save()
+    full_url = f"{request.scheme}://{request.get_host()}/{code.code}"
+    qr_image = qrcode.make(full_url, box_size=10)
+    qr_image_pil = qr_image.get_image()
+    stream = BytesIO()
+    qr_image_pil.save(stream, format='PNG')
+    qr_image_data = stream.getvalue()
+    qr_image_base64 = base64.b64encode(qr_image_data).decode('utf-8')
+    return JsonResponse({'qr_code_base64': f'{qr_image_base64}'})
 
 
 @login_required
@@ -83,17 +109,15 @@ def edit_info(request):
     if request.method == "POST":
         form = UserPorfileForm(request.POST)
         if form.is_valid():
-            # D 要重新命名
-            C = UserProfile.objects.all()
-            D = UserProfile.objects.get(username=request.user)
-            if D:
+            try:
+                data = UserProfile.objects.get(username=request.user)
                 profile = form.save(commit=False)
 
-                profile.id = D.id
+                profile.id = data.id
                 profile.username = request.user
                 profile.last_edited_at = datetime.now()
                 profile.save()
-            else:
+            except UserProfile.DoesNotExist:
                 profile = form.save(commit=False)
                 profile.username = request.user
                 profile.save()
@@ -114,7 +138,8 @@ def edit_info(request):
 # 驗證使用者
 
 
-def your_view_function(request, url_suffix):
+@login_required
+def verify(request, url_suffix):
     try:
         codeprofile = QRCodeList.objects.get(code=url_suffix)
         profile = UserProfile.objects.get(username=codeprofile.username)
@@ -123,4 +148,15 @@ def your_view_function(request, url_suffix):
 
     return render(request, 'verify.html', {
         'profile': profile,
+    })
+
+
+def group_list(request):
+    groups = Group.objects.all()
+    return render(request, 'manage.html', {'groups': groups})
+
+
+def change_permission(request):
+    return render(request, 'change_permission.html', {
+
     })

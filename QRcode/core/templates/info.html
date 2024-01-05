@@ -13,25 +13,32 @@
         <th scope="col">地址</th>
         <th scope="col">電話</th>
         <th scope="col">最後編輯時間</th>
+        <th scope="col">使用者群組</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <th scope="row">{{ profile.username }}</th>
-        <td>{{ profile.gender }}</td>
+        <td>
+          {% if profile.gender == "M" %}
+            男性
+          {% elif profile.gender == "F" %}
+            女性
+          {% endif %}
+        </td>
         <td>{{ profile.city }}</td>
         <td>{{ profile.address }}</td>
         <td>{{ profile.phone }}</td>
         <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
+        <td>
+          {% if profile.group.name == "Members" %}
+              會員
+          {% elif profile.group.name == "Admin" %}
+              管理者
+          {% endif %}
+        </td>
       </tr>
     </tbody>
   </table>
 
-
-
-
-{% comment %} {% for detail in profile %}
-    {{ detail.username }}
-    {{ detail.gender }}
-{% endfor %} {% endcomment %}
 {% endblock  %}

@@ -13,6 +13,7 @@
         <th scope="col">地址</th>
         <th scope="col">電話</th>
         <th scope="col">最後編輯時間</th>
+        <th scope="col">使用者群組</th>
       </tr>
     </thead>
     <tbody>
@@ -23,6 +24,13 @@
         <td>{{ profile.address }}</td>
         <td>{{ profile.phone }}</td>
         <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
+        <td>{{ profile.group.name }}
+        {% if profile.group.name == "Members" %}
+            會員
+        {% elif profile.group.name == "Admin" %}
+            管理者
+        {% endif %}
+        </td>
       </tr>
     </tbody>
   </table>
