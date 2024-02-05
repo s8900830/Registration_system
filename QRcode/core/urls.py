@@ -9,6 +9,7 @@ urlpatterns = [
     path('user_info/', views.user_info, name="user_info"),
     path('edit_info/', views.edit_info, name="edit_info"),
     path('manage/', views.group_list, name="manage"),
+    path('manage/<int:pk>/<str:action>', views.group_list, name="manage"),
     path('change_permission/', views.change_permission, name="change_permission"),
     path('generate_qr_code/', views.QRcode, name="generate_qr_code"),
     path('<str:url_suffix>/', views.verify),

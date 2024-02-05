@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-
 <ul>
+    
     {% for group in groups %}
         <li>
             {{ group.name }} - {{ group.user_set.count }} Users

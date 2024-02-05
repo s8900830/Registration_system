@@ -148,13 +148,43 @@ def verify(request, url_suffix):
 
     return render(request, 'verify.html', {
         'profile': profile,
+        'QRcodeList':codeprofile
     })
 
-
-def group_list(request):
+@login_required
+def group_list(request,pk,action):
     groups = Group.objects.all()
-    return render(request, 'manage.html', {'groups': groups})
-
+    if pk == None:
+        return render(request, 'manage.html', {'groups': groups})
+    else:
+        if action == 'verify':
+            try:
+                profile = UserProfile.objects.get(id=pk)
+                codeprofile = QRCodeList.objects.get(username=profile.username)
+                codeprofile.verify = 1
+                codeprofile.admin_verify=request.user.username
+                codeprofile.save()
+            except UserProfile.DoesNotExist:
+                return redirect('manage')
+            messages.success(
+                request, "User Verifyed")
+            return render(request, 'manage.html', {
+                'groups': groups
+            })
+        elif action == "cancel":
+            try:
+                profile = UserProfile.objects.get(id=pk)
+                codeprofile = QRCodeList.objects.get(username=profile.username)
+                codeprofile.verify = 0
+                codeprofile.admin_verify=""
+                codeprofile.save()
+            except UserProfile.DoesNotExist:
+                return redirect('manage')
+            messages.success(
+                request, "Canel Verify User")
+            return render(request, 'manage.html', {
+                'groups': groups
+            })
 
 def change_permission(request):
     return render(request, 'change_permission.html', {
