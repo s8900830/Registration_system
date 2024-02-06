@@ -3,55 +3,57 @@
 
 {% block content %}
 <h1>manage</h1>
-
-<table class="table">
-    <thead class="thead-dark">
-      <tr>
-        <th scope="col">使用者名稱</th>
-        <th scope="col">性別</th>
-        <th scope="col">都市</th>
-        <th scope="col">地址</th>
-        <th scope="col">電話</th>
-        <th scope="col">最後編輯時間</th>
-        <th scope="col">使用者群組</th>
-        {% if user.groups.all.0.name == 'Admin'  %}
-          {% if codeprofile.verify == 0   %}
-            <th>確認</th>
-          {% else %}
-            <th>取消</th>
-          {% endif %}
-        {% endif %}
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row">{{ profile.username }}</th>
-        <td>
-          {% if profile.gender == "M" %}
-            男性
-          {% elif profile.gender == "F" %}
-            女性
-          {% endif %}
-        </td>
-        <td>{{ profile.city }}</td>
-        <td>{{ profile.address }}</td>
-        <td>{{ profile.phone }}</td>
-        <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
-        <td>
-        {% if profile.group.name == "Members" %}
-            會員
-        {% elif profile.group.name == "Admin" %}
-            管理者
-        {% endif %}
-        </td>
-        {% if user.groups.all.0.name == 'Admin'  %}
-          {% if codeprofile.verify == 0   %}
-            <td><a href="{% url 'manage' pk=profile.id action='verify' %}" class="btn btn-secondary">確認</a></td>
-          {% else %}
-            <td><a href="{% url 'manage' pk=profile.id action='cancel' %}" class="btn btn-danger">取消</a></td>
-          {% endif %}
-        {% endif %}
-      </tr>
-    </tbody>
-  </table>
+<form method="POST" action="{% url 'admin_user_edit' pk=profile.id %}">
+    {% csrf_token %}
+    <table class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">使用者名稱</th>
+            <th scope="col">性別</th>
+            <th scope="col">都市</th>
+            <th scope="col">地址</th>
+            <th scope="col">電話</th>
+            <th scope="col">最後編輯時間</th>
+            <th scope="col">使用者群組</th>
+            {% if codeprofile.verify == 0   %}
+                <th>確認</th>
+            {% else %}
+                <th>取消</th>
+            {% endif %}
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">{{ profile.username }}</th>
+            <td>
+            {% if profile.gender == "M" %}
+                男性
+            {% elif profile.gender == "F" %}
+                女性
+            {% endif %}
+            </td>
+            <td>{{ profile.city }}</td>
+            <td>{{ profile.address }}</td>
+            <td>{{ profile.phone }}</td>
+            <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
+            <td>
+                <select class="form-select" aria-label="Default select example" name="change_group">
+                    <option selected value="Members">會員</option>
+                    <option value="Admin">管理者</option>
+                </select>
+            </td>
+            {{profile.id}}
+            {% if codeprofile is not None %}
+                {% if codeprofile.verify == 0   %}
+                    <td><a href="{% url 'manage' pk=profile.id action='verify' %}" class="btn btn-secondary">確認</a></td>
+                {% else %}
+                    <td><a href="{% url 'manage' pk=profile.id action='cancel' %}" class="btn btn-danger">取消</a></td>
+                {% endif %}
+            {% endif %}
+        </tr>
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-danger">Save</button>
+    <a href="{% url 'manage' %}" class="btn btn-secondary">返回</a>
+</form>
 {% endblock  %}
