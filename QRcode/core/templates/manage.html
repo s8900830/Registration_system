@@ -1,17 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<ul>
-    
+<div class="card" style="width: 18rem;">
+
+<ul class="list-group list-group-flush"> 
     {% for group in groups %}
-        <li>
+        <li class="list-group-item">
             {{ group.name }} - {{ group.user_set.count }} Users
-            <ul>
+            <ul class="list-group list-group-flush">
                 {% for user in group.user_set.all %}
-                    <li>{{ user.username }}</li>
+                    <li class="list-group-item">
+                        <div class="container text-center">
+                            <div class="row">
+                                <div class="col">{{ user.username }}</div>
+                                <div class="col order-1" ><a href="{% url "change_permission" %}" class="btn btn-secondary">Edit</a></div>
+                            </div>
+                        </div>
+                    </li>
                 {% endfor %}
             </ul>
         </li>
     {% endfor %}
 </ul>
-<a href="{% url "change_permission" %}" class="btn btn-secondary">Edit</a>
+</div>
+
 {% endblock %}

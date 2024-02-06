@@ -146,9 +146,9 @@ def verify(request, url_suffix):
     except QRCodeList.DoesNotExist:
         return redirect('home')
 
-    return render(request, 'verify.html', {
+    return render(request, 'info.html', {
         'profile': profile,
-        'QRcodeList':codeprofile
+        'codeprofile':codeprofile
     })
 
 @login_required

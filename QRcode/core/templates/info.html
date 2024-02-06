@@ -14,6 +14,13 @@
         <th scope="col">電話</th>
         <th scope="col">最後編輯時間</th>
         <th scope="col">使用者群組</th>
+        {% if user.groups.all.0.name == 'Admin'  %}
+          {% if codeprofile.verify == 0   %}
+            <th>確認</th>
+          {% else %}
+            <th>取消</th>
+          {% endif %}
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -31,14 +38,20 @@
         <td>{{ profile.phone }}</td>
         <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
         <td>
-          {% if profile.group.name == "Members" %}
-              會員
-          {% elif profile.group.name == "Admin" %}
-              管理者
-          {% endif %}
+        {% if profile.group.name == "Members" %}
+            會員
+        {% elif profile.group.name == "Admin" %}
+            管理者
+        {% endif %}
         </td>
+        {% if user.groups.all.0.name == 'Admin'  %}
+          {% if codeprofile.verify == 0   %}
+            <td><a href="{% url 'manage' pk=profile.id action='verify' %}" class="btn btn-secondary">確認</a></td>
+          {% else %}
+            <td><a href="{% url 'manage' pk=profile.id action='cancel' %}" class="btn btn-danger">取消</a></td>
+          {% endif %}
+        {% endif %}
       </tr>
     </tbody>
   </table>
-
 {% endblock  %}
