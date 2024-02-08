@@ -27,10 +27,12 @@ def home(request):
             login(request, user)
             messages.success(request, "You Have Been Logged In!")
 
-            next_param = request.GET.get('next', 'home')
-            if not next_param or next_param.isspace():
-                next_param = 'home'
-            return redirect(next_param)
+            # next_param = request.GET.get('next', 'home')
+            # if not next_param or next_param.isspace():
+            #     next_param = 'home'
+            # return redirect(next_param)
+
+            return redirect('home')
         else:
             messages.success(
                 request, "There Was An Error Logging In, Please Try Again")
@@ -138,7 +140,7 @@ def edit_info(request):
 # 驗證使用者
 
 
-@login_required
+# @login_required
 def verify(request, url_suffix):
     try:
         codeprofile = QRCodeList.objects.get(code=url_suffix)
@@ -154,6 +156,15 @@ def verify(request, url_suffix):
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'manage.html', {'groups': groups})
+
+
+@login_required
+def manageuser(request):
+    groupid = Group.objects.get(name='Members').id
+    profiles = UserProfile.objects.filter(group=groupid)
+    return render(request, 'manageuser.html', {
+        'profiles': profiles,
+    })
 
 
 def change_permission(request):
