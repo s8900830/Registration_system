@@ -12,8 +12,6 @@ class UserProfile(models.Model):
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     last_edited_at = models.DateTimeField(auto_now_add=True)
-    group = models.ForeignKey(
-        Group, related_name='user_profiles', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'User Profile'

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group,User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.http import JsonResponse
@@ -146,17 +146,21 @@ def verify(request, url_suffix):
         codeprofile = QRCodeList.objects.get(code=url_suffix)
         profile = UserProfile.objects.get(username=codeprofile.username)
     except QRCodeList.DoesNotExist:
+        messages.error(
+                request, "找不到相關 QRcode")
         return redirect('home')
 
-    return render(request, 'verify.html', {
+    return render(request, 'info.html', {
         'profile': profile,
+        'codeprofile':codeprofile
     })
 
-
-def group_list(request):
+@login_required
+def group(request):
     groups = Group.objects.all()
     return render(request, 'manage.html', {'groups': groups})
 
+<<<<<<< HEAD
 
 @login_required
 def manageuser(request):
@@ -168,6 +172,71 @@ def manageuser(request):
 
 
 def change_permission(request):
+=======
+@login_required
+def group_list(request,pk,action):
+    groups = Group.objects.all()
+    if pk == None:
+        return render(request, 'manage.html', {'groups': groups})
+    else:
+        if action == 'verify':
+            try:
+                profile = UserProfile.objects.get(id=pk)
+                codeprofile = QRCodeList.objects.get(username=profile.username)
+                codeprofile.verify = 1
+                codeprofile.admin_verify=request.user.username
+                codeprofile.save()
+            except UserProfile.DoesNotExist:
+                return redirect('manage')
+            messages.success(
+                request, "User Verifyed")
+            return render(request, 'manage.html', {
+                'groups': groups
+            })
+        elif action == "cancel":
+            try:
+                profile = UserProfile.objects.get(id=pk)
+                codeprofile = QRCodeList.objects.get(username=profile.username)
+                codeprofile.verify = 0
+                codeprofile.admin_verify=""
+                codeprofile.save()
+            except UserProfile.DoesNotExist:
+                return redirect('manage')
+            messages.success(
+                request, "Canel Verify User")
+            return render(request, 'manage.html', {
+                'groups': groups
+            })
+        
+@login_required
+def change_permission(request,pk):
+    try:
+        profile = UserProfile.objects.get(username=pk)
+        codeprofile = QRCodeList.objects.get(username=profile.username)
+    except UserProfile.DoesNotExist:
+                messages.success(request, "Not Find Any UserData")
+                return redirect('manage')
+    except QRCodeList.DoesNotExist:
+            messages.success(request, "QRCode Not Create")
+            return render(request, 'change_permission.html', {
+            'profile':profile,
+        })
+>>>>>>> 23daefd48e43e22c61ce5e5f994f4cc94344bf60
     return render(request, 'change_permission.html', {
-
+        'profile':profile,
+        'codeprofile':codeprofile
     })
+
+@login_required
+def admin_user_edit(request,pk):
+    if request.method == "POST":
+        change_group = request.POST["change_group"]
+        profile = UserProfile.objects.get(pk=pk)
+        user = User.objects.get(username=profile.username)
+        default_group, created = Group.objects.get_or_create(name=change_group)
+        user.groups.clear()
+        user.groups.add(default_group.id)
+        messages.success(request, f"{change_group}")
+        return redirect('manage')
+    else:
+        return redirect('manage')
