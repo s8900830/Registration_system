@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="col-md-5 offset-md-4">
+    <h1>Change Password</h1>
+    </br>
+    <h2>使用者：{{ user.username }}</h2>
+    </br>
+    <form method="post" action="{% url 'admin_user_pas_change' pk=user.id %}">
+        {% csrf_token %}
+        新的Password：<input name="pass" type="text">
+
+        <button type="submit" class="btn btn-danger">更改</button>
+        <a class="btn btn-secondary" href="{% url 'change_permission' pk=user.id %}">返回</a>
+    <form>
+</div>
+{% endblock %}

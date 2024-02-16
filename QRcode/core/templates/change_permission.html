@@ -2,7 +2,7 @@
 {% load humanize %}
 
 {% block content %}
-<h1>manage</h1>
+<h1>Edit User Information</h1>
 <form method="POST" action="{% url 'admin_user_edit' pk=profile.id %}">
     {% csrf_token %}
     <table class="table">
@@ -15,11 +15,14 @@
             <th scope="col">電話</th>
             <th scope="col">最後編輯時間</th>
             <th scope="col">使用者群組</th>
-            {% if codeprofile.verify == 0   %}
-                <th>確認</th>
-            {% else %}
-                <th>取消</th>
+            {% if codeprofile is not None %}
+                {% if codeprofile.verify == 0   %}
+                    <th>確認</th>
+                {% else %}
+                    <th>取消</th>
+                {% endif %}
             {% endif %}
+            <th scope="col">變更密碼</th>
         </tr>
         </thead>
         <tbody>
@@ -42,7 +45,6 @@
                     <option value="Admin">管理者</option>
                 </select>
             </td>
-            {{profile.id}}
             {% if codeprofile is not None %}
                 {% if codeprofile.verify == 0   %}
                     <td><a href="{% url 'manage' pk=profile.id action='verify' %}" class="btn btn-secondary">確認</a></td>
@@ -50,6 +52,7 @@
                     <td><a href="{% url 'manage' pk=profile.id action='cancel' %}" class="btn btn-danger">取消</a></td>
                 {% endif %}
             {% endif %}
+            <td><a href="{% url 'admin_user_pas_change' pk=profile.username_id %}" class="btn btn-secondary">變更密碼</a></td>
         </tr>
         </tbody>
     </table>

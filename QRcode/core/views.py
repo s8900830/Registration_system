@@ -160,19 +160,6 @@ def group(request):
     groups = Group.objects.all()
     return render(request, 'manage.html', {'groups': groups})
 
-<<<<<<< HEAD
-
-@login_required
-def manageuser(request):
-    groupid = Group.objects.get(name='Members').id
-    profiles = UserProfile.objects.filter(group=groupid)
-    return render(request, 'manageuser.html', {
-        'profiles': profiles,
-    })
-
-
-def change_permission(request):
-=======
 @login_required
 def group_list(request,pk,action):
     groups = Group.objects.all()
@@ -214,14 +201,13 @@ def change_permission(request,pk):
         profile = UserProfile.objects.get(username=pk)
         codeprofile = QRCodeList.objects.get(username=profile.username)
     except UserProfile.DoesNotExist:
-                messages.success(request, "Not Find Any UserData")
+                messages.error(request, "Not Find Any UserData")
                 return redirect('manage')
     except QRCodeList.DoesNotExist:
-            messages.success(request, "QRCode Not Create")
+            messages.error(request, "QRCode Not Create")
             return render(request, 'change_permission.html', {
             'profile':profile,
         })
->>>>>>> 23daefd48e43e22c61ce5e5f994f4cc94344bf60
     return render(request, 'change_permission.html', {
         'profile':profile,
         'codeprofile':codeprofile
@@ -240,3 +226,22 @@ def admin_user_edit(request,pk):
         return redirect('manage')
     else:
         return redirect('manage')
+
+@login_required
+def admin_user_pas_change(request,pk):
+    profile =  UserProfile.objects.get(username_id=pk)
+    user = User.objects.get(pk=pk)
+    if request.method == "POST":
+        password=request.POST['pass']
+        user.set_password(password)
+        user.save()
+        codeprofile = QRCodeList.objects.get(username=profile.username)
+        messages.success(request, "Change Password Success")
+        return render(request, 'change_permission.html', {
+            'profile':profile,
+            'codeprofile':codeprofile
+        })
+    else:
+        return render(request, 'admin_user_pas_change.html', {
+                'user':user
+    })

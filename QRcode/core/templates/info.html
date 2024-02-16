@@ -38,9 +38,9 @@
         <td>{{ profile.phone }}</td>
         <td>{{ profile.last_edited_at|date:"Y年n月j日 G點i分" }}</td>
         <td>
-        {% if profile.group.name == "Members" %}
+        {% if user.groups.all.0.name == "Members" %}
             會員
-        {% elif profile.group.name == "Admin" %}
+        {% elif user.groups.all.0.name == "Admin" %}
             管理者
         {% endif %}
         </td>
