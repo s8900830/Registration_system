@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import yaml
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,3 +126,23 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email 設定 -> 使用 Google
+
+with open(BASE_DIR/"config.yaml","r") as f:
+    config = yaml.full_load(f)
+dict_email_config = config.get('email','')
+email_host_user = dict_email_config['EMAIL_HOST_USER']
+email_host_password = dict_email_config['EMAIL_HOST_PASSWORD']
+
+EMAIL_HOST_USER = email_host_user
+EMAIL_HOST_PASSWORD =  email_host_password
+
+# 詳細資料走 Yml 帶入
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  #SMTP伺服器
+EMAIL_PORT = 587  #TLS通訊埠號
+EMAIL_USE_TLS = True  #開啟TLS(傳輸層安全性)
+EMAIL_HOST_USER = email_host_user  #寄件者電子郵件
+EMAIL_HOST_PASSWORD = email_host_password  #Gmail應用程式的密碼
