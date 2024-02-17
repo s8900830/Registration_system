@@ -130,7 +130,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email 設定 -> 使用 Google
 
-with open(BASE_DIR/"config.yaml","r") as f:
+with open(BASE_DIR/"../Real-environ.yml","r",encoding="utf-8") as f:
     config = yaml.full_load(f)
 dict_email_config = config.get('email','')
 email_host_user = dict_email_config['EMAIL_HOST_USER']

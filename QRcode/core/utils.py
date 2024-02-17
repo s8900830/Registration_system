@@ -17,3 +17,9 @@ class mainfunction:
 
 if __name__ == "__main__":
     print(mainfunction.code(10))
+
+
+class email:
+    def send_email():
+      
+      pass   
