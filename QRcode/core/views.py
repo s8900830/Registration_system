@@ -4,10 +4,11 @@ from django.contrib.auth.models import Group,User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.http import JsonResponse
+from django.utils import timezone
 from .forms import SignUpForm, UserPorfileForm
 from .models import UserProfile, QRCodeList
 from datetime import datetime
-from .change import mainfunction
+from .utils import mainfunction,email
 from io import BytesIO
 import qrcode
 import base64
@@ -91,7 +92,8 @@ def user_info(request):
 
 def QRcode(request):
     try:
-        code = QRCodeList.objects.get(username=request.user)
+        code = QRCodeList.objects.filter(username=request.user).filter(expired_at__gt=timezone.now()).order_by('created_at')[0]
+        # code = 
     except QRCodeList.DoesNotExist:
         code = QRCodeList.objects.create(
             username=request.user, code=mainfunction.code(15))
@@ -103,8 +105,40 @@ def QRcode(request):
     qr_image_pil.save(stream, format='PNG')
     qr_image_data = stream.getvalue()
     qr_image_base64 = base64.b64encode(qr_image_data).decode('utf-8')
+    # if code.send_email is False:
+    #     user = User.objects.get(username = request.user)
+    #     message = "這是您的QRCode"
+    #     res = email.send_email(user.email,request.user,qr_image_base64,message)
+    #     if res is 'error':
+    #         messages.error(request, "Email Send Error！")
     return JsonResponse({'qr_code_base64': f'{qr_image_base64}'})
 
+def QRcode_Request_Email(request):
+    pass
+
+
+    # try:
+    #     code = QRCodeList.objects.get(username=request.user)
+    # except QRCodeList.DoesNotExist:
+    #     messages.error(request, "Not Found Any QRCode Info")
+
+    # if code.expired_at < datetime.now :
+    #     code = QRCodeList.objects.create(
+    #         username=request.user, code=mainfunction.code(15))
+    #     code.save()
+    # full_url = f"{request.scheme}://{request.get_host()}/{code.code}"
+    # qr_image = qrcode.make(full_url, box_size=10)
+    # qr_image_pil = qr_image.get_image()
+    # stream = BytesIO()
+    # qr_image_pil.save(stream, format='PNG')
+    # qr_image_data = stream.getvalue()
+    # qr_image_base64 = base64.b64encode(qr_image_data).decode('utf-8')
+    # user = User.objects.get(username = request.user)
+    # message = "這是您的QRCode"
+    # res = email.send_email(user.email,request.user,qr_image_base64,message)
+    # if res is 'error':
+    #     messages.error(request, "Email Send Error！")
+    # return JsonResponse({'message': f'{message}'})
 
 @login_required
 def edit_info(request):

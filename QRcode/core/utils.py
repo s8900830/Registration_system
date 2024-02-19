@@ -1,5 +1,7 @@
 import random
-
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django.template.loader import render_to_string
 
 class mainfunction:
 
@@ -20,6 +22,24 @@ if __name__ == "__main__":
 
 
 class email:
-    def send_email():
-      
-      pass   
+    def send_email(send_user_email,user_name,QRcode,message):
+        if send_user_email or user_name is None:
+            subject = 'Registration System'
+
+            email_template = render_to_string('email_template.html', {
+                'user_name':user_name,
+                'QRcode':QRcode,
+                'context': message}
+                )
+            
+            email = EmailMessage(
+                    subject,  # 電子郵件標題
+                    email_template,  # 電子郵件內容
+                    settings.EMAIL_HOST_USER,  # 寄件者
+                    [send_user_email]  # 收件者
+                )
+            email.fail_silently = False
+            email.send()
+            return 'success'
+        else:
+            return 'error'
