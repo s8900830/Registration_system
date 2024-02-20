@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.http import JsonResponse
 from django.utils import timezone
-from .forms import SignUpForm, UserPorfileForm
+from .forms import SignUpForm, UserProfileForm
 from .models import UserProfile, QRCodeList
 from datetime import datetime
 from .utils import mainfunction,email
@@ -27,17 +27,15 @@ def home(request):
         if user is not None:
             login(request, user)
             messages.success(request, "You Have Been Logged In!")
-
-            # next_param = request.GET.get('next', 'home')
-            # if not next_param or next_param.isspace():
-            #     next_param = 'home'
-            # return redirect(next_param)
-
-            return redirect('home')
         else:
             messages.success(
                 request, "There Was An Error Logging In, Please Try Again")
-            return redirect('home')
+            
+        next_param = request.GET.get('next', '/')
+        if not next_param or next_param.isspace():
+            next_param = 'home'
+        return redirect(next_param)
+    
     else:
         return render(request, 'home.html', {
 
@@ -79,7 +77,7 @@ def user_info(request):
     try:
         profile = UserProfile.objects.get(username=request.user)
     except UserProfile.DoesNotExist:
-        form = UserPorfileForm()
+        form = UserProfileForm()
         messages.success(
             request, "You Don't Have Any Profile! Please Add Your Profile!")
         return render(request, 'edit.html', {
@@ -105,12 +103,14 @@ def QRcode(request):
     qr_image_pil.save(stream, format='PNG')
     qr_image_data = stream.getvalue()
     qr_image_base64 = base64.b64encode(qr_image_data).decode('utf-8')
-    # if code.send_email is False:
-    #     user = User.objects.get(username = request.user)
-    #     message = "這是您的QRCode"
-    #     res = email.send_email(user.email,request.user,qr_image_base64,message)
-    #     if res is 'error':
-    #         messages.error(request, "Email Send Error！")
+    # try :
+    #     if code.send_email is False:
+    #         user = User.objects.get(username = request.user)
+    #         res = email.send_email(user.email,request.user,qr_image_base64,message="")
+    #         if res == 'error':
+    #             messages.error(request, "Email Send Error！")
+    # except Exception as e:
+    #         messages.error(request, f"An error occurred: {str(e)}")
     return JsonResponse({'qr_code_base64': f'{qr_image_base64}'})
 
 def QRcode_Request_Email(request):
@@ -143,7 +143,7 @@ def QRcode_Request_Email(request):
 @login_required
 def edit_info(request):
     if request.method == "POST":
-        form = UserPorfileForm(request.POST)
+        form = UserProfileForm(request.POST)
         if form.is_valid():
             try:
                 data = UserProfile.objects.get(username=request.user)
@@ -165,7 +165,8 @@ def edit_info(request):
                 request, "There Was An Error Logging In, Please Try Again")
             return redirect('home')
     else:
-        form = UserPorfileForm()
+        profile = UserProfile.objects.get(username=request.user)
+        form = UserProfileForm(instance=profile)
         return render(request, 'edit.html', {
             'form': form
         })
@@ -174,7 +175,7 @@ def edit_info(request):
 # 驗證使用者
 
 
-# @login_required
+@login_required
 def verify(request, url_suffix):
     try:
         codeprofile = QRCodeList.objects.get(code=url_suffix)
@@ -183,11 +184,12 @@ def verify(request, url_suffix):
         messages.error(
                 request, "找不到相關 QRcode")
         return redirect('home')
-
-    return render(request, 'info.html', {
-        'profile': profile,
-        'codeprofile':codeprofile
-    })
+        # 檢查是否為本人或是 admin 群組成員
+    if (request.user == profile.username) or request.user.groups.filter(name='admin').exists():
+        return render(request, 'info.html', {'profile': profile, 'codeprofile': codeprofile})
+    else:
+        messages.error(request,"您沒有權限查看此資訊。")
+        return redirect('home')
 
 @login_required
 def group(request):

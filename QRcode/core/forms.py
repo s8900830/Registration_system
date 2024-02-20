@@ -47,7 +47,7 @@ class SignUpForm(UserCreationForm):
 #     template_name = 'horizontal_select.html'
 
 
-class UserPorfileForm(forms.ModelForm):
+class UserProfileForm(forms.ModelForm):
     gender_choices = (
         ('M', '男'),
         ('F', '女'),
@@ -69,7 +69,11 @@ class UserPorfileForm(forms.ModelForm):
         'placeholder': 'Phone',
     }))
 
+    email = forms.CharField(label="", max_length="200", widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'email',
+    }))
     class Meta:
         model = UserProfile
         fields = ('gender', 'city', 'address',
-                  'phone',)
+                  'phone','email')

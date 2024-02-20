@@ -1,5 +1,8 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import User, Group
+from functools import partial
 import datetime
 
 # Create your models here.
@@ -12,6 +15,7 @@ class UserProfile(models.Model):
     city = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
+    email = models.EmailField()
     last_edited_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -20,7 +24,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return str(self.username)
-
+    
+    @receiver(post_save, sender=User)
+    def update_from_User(sender,instance,created,**kwargs):
+        if created :
+            UserProfile.objects.create(username=instance,email=instance.email)
+        else:
+            instance.profile.email = instance.email
+            instance.profile.save()
 
 class QRCodeList(models.Model):
     username = models.ForeignKey(
@@ -32,8 +43,8 @@ class QRCodeList(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
-    def calculate_expired_at(self):
-        return self.created_at + datetime.timedelta(days=30)
+    def calculate_expired_at():
+        return datetime.date.today() + datetime.timedelta(days=30)
 
     expired_at = models.DateTimeField(default=calculate_expired_at)
 

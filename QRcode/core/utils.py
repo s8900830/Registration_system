@@ -25,13 +25,14 @@ class email:
     def send_email(send_user_email,user_name,QRcode,message):
         if send_user_email or user_name is None:
             subject = 'Registration System'
-
-            email_template = render_to_string('email_template.html', {
-                'user_name':user_name,
-                'QRcode':QRcode,
-                'context': message}
-                )
-            
+            if QRcode is not None:
+                email_template = render_to_string('email_QRcode.html', {
+                    'user_name':user_name,
+                    'QRcode':QRcode})
+            else:
+                email_template = render_to_string('email_QRcode.html', {
+                    'user_name':user_name,
+                    'context': message})
             email = EmailMessage(
                     subject,  # 電子郵件標題
                     email_template,  # 電子郵件內容

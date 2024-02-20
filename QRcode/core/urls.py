@@ -14,5 +14,5 @@ urlpatterns = [
     path('admin_user_edit/<int:pk>', views.admin_user_edit, name="admin_user_edit"),
     path('generate_qr_code/', views.QRcode, name="generate_qr_code"),
     path('admin_user_pas_change/<int:pk>',views.admin_user_pas_change , name="admin_user_pas_change"),
-    path('<str:url_suffix>/', views.verify),
+    path('<str:url_suffix>/', views.verify), #要注意一下 可能會有問題
 ]
