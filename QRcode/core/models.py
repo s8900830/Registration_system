@@ -30,8 +30,9 @@ class UserProfile(models.Model):
         if created :
             UserProfile.objects.create(username=instance,email=instance.email)
         else:
-            instance.profile.email = instance.email
-            instance.profile.save()
+            profile= UserProfile.objects.get(username=instance)
+            profile.email = instance.email
+            profile.save()
 
 class QRCodeList(models.Model):
     username = models.ForeignKey(

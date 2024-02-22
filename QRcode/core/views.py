@@ -90,8 +90,12 @@ def user_info(request):
 
 def QRcode(request):
     try:
-        code = QRCodeList.objects.filter(username=request.user).filter(expired_at__gt=timezone.now()).order_by('created_at')[0]
-        # code = 
+        get = QRCodeList.objects.filter(username=request.user).filter(expired_at__gt=timezone.now()).order_by('created_at')
+        if len(get) :
+            code = QRCodeList.objects.create(
+                username=request.user, code=mainfunction.code(15))
+        else:
+            code = get[0]
     except QRCodeList.DoesNotExist:
         code = QRCodeList.objects.create(
             username=request.user, code=mainfunction.code(15))
@@ -103,14 +107,16 @@ def QRcode(request):
     qr_image_pil.save(stream, format='PNG')
     qr_image_data = stream.getvalue()
     qr_image_base64 = base64.b64encode(qr_image_data).decode('utf-8')
-    # try :
-    #     if code.send_email is False:
-    #         user = User.objects.get(username = request.user)
-    #         res = email.send_email(user.email,request.user,qr_image_base64,message="")
-    #         if res == 'error':
-    #             messages.error(request, "Email Send Error！")
-    # except Exception as e:
-    #         messages.error(request, f"An error occurred: {str(e)}")
+    try :
+        if code.send_email is False:
+            user = User.objects.get(username = request.user)
+            res = email.send_email(user.email,request.user,qr_image_base64,message="")
+            if res == 'error':
+                messages.error(request, "Email Send Error！")
+            else:
+                code.send_email = True
+    except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
     return JsonResponse({'qr_code_base64': f'{qr_image_base64}'})
 
 def QRcode_Request_Email(request):
