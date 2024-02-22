@@ -32,6 +32,7 @@ class email:
             else:
                 email_template = render_to_string('email_QRcodeAgain.html', {
                     'user_name':user_name,
+                    'QRcode':QRcode,
                     'context': message})
             email = EmailMessage(
                     subject,  # 電子郵件標題
